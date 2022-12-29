@@ -5,7 +5,8 @@ import Frames.GameField;
 public class AI {
 
     static Thread thread;
-private static boolean needMoving = false;
+
+    private static boolean needMoving = false;
     private static boolean needFighting = false;
 
     public static  void wait(int millisec)

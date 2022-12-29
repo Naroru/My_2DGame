@@ -17,7 +17,6 @@ public class Character extends JLabel{
 
     private int offsetForPic;
 
-
     private   int delayMillsec = 5;
     private int countAttackAnimation; //depends of gif file
     private volatile boolean rightOrientation = true;
@@ -27,7 +26,6 @@ public class Character extends JLabel{
     private volatile boolean isFighting = false;
 
     private String PropertyPicturesFolder;
-
 
     public void setDelayMillsec(int delayMillsec) {
         this.delayMillsec = delayMillsec;
@@ -42,8 +40,8 @@ public class Character extends JLabel{
 
     public static Character createCharacter(int xPos, int yPos, String PropertyPicturesFolder, int countAttackAnimation, JLabel scene, Directions direction)
     {
-        Character character = new Character();
 
+        Character character = new Character();
 
         character.setPropertyPicturesFolder(PropertyPicturesFolder);
 
@@ -83,7 +81,6 @@ public class Character extends JLabel{
             setMoving(true);
 
             if (!isJumping && !isFighting)
-
                 setActionIcon("CharacterMovingRightPictureName", "CharacterMovingLeftPictureName");
 
             while (isMoving && !isFighting)
