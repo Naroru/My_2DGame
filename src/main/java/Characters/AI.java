@@ -1,6 +1,6 @@
 package Characters;
 
-import Frames.GameField;
+import Enums.CharacterOrientations;
 
 public class AI {
 
@@ -9,7 +9,7 @@ public class AI {
     private static boolean needMoving = false;
     private static boolean needFighting = false;
 
-    public static  void wait(int millisec)
+    private static void wait(int millisec)
     {
         try {
             Thread.sleep(millisec);
@@ -17,32 +17,35 @@ public class AI {
             throw new RuntimeException(e);
         }
     }
-        public static  void npsAIStart(Character nps)
+
+    private static void wait(Thread thread)
+    {
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+        public static  void npsAIStart(Character nps, Character mainHero)
         {
-            updateNPSState(nps);
+
+            wait(800);
+
+            updateNPSState(nps, mainHero);
 
             Thread AI = new Thread(() -> {
                 while (true) {
 
                     wait(200);
 
-
                     if (needMoving) {
                         Thread moveThread = nps.move();
-                        try {
-                            moveThread.join();
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
+                         wait(moveThread);
                     }
 
-                    if(needFighting) {
+                    if (needFighting) {
                         Thread fightThread = nps.fight();
-                        try {
-                            fightThread.join();
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
+                        wait(fightThread);
                     }
                 }
             });
@@ -50,19 +53,23 @@ public class AI {
             AI.start();
         }
 
-        private static void updateNPSState(Character nps){
+        private static void updateNPSState(Character nps, Character mainHero){
 
             Thread threadStateNPSDefinition = new Thread(() -> {
 
-                Character mainHero = GameField.getMainHero();
+                Character.CharacterLabel npsLabel = nps.getCharacterLabel();
+                Character.CharacterLabel mainHeroLabel = mainHero.getCharacterLabel();
+
+                int nps_xCoordinate =  npsLabel.getX();
+                int mainHero_xCoordinate = mainHeroLabel.getX();
 
                 while (true) {
 
-                    if (mainHero.getX() < nps.getX()) {
+                    if (mainHero_xCoordinate< nps_xCoordinate) {
 
-                        int mainHeroRightBorderX = mainHero.getX() + mainHero.getIcon().getIconWidth();
+                        int mainHeroRightBorderX = mainHero_xCoordinate + mainHeroLabel.getIcon().getIconWidth();
 
-                        if (mainHeroRightBorderX >= nps.getX())
+                        if (mainHeroRightBorderX >= nps_xCoordinate)
                         {
                             needFighting = true;
                             needMoving = false;
@@ -72,12 +79,12 @@ public class AI {
                             needFighting = false;
                             needMoving = true;
                             nps.setFighting(false);
-                            nps.setRightOrientation(false);
+                            npsLabel.setCharacterOrientations(CharacterOrientations.LEFT);
                         }
 
-                    } else if (mainHero.getX() > nps.getX()) {
-                        int npsRightBorderX = nps.getX() + nps.getIcon().getIconWidth();
-                        int mainHeroX = mainHero.getX();
+                    } else if (mainHero_xCoordinate > nps_xCoordinate) {
+                        int npsRightBorderX = nps_xCoordinate + npsLabel.getIcon().getIconWidth();
+                        int mainHeroX = mainHero_xCoordinate;
 
                         if (mainHeroX <= npsRightBorderX)
                         {
@@ -89,7 +96,7 @@ public class AI {
                             needFighting = false;
                             needMoving = true;
                             nps.setFighting(false);
-                            nps.setRightOrientation(true);
+                            npsLabel.setCharacterOrientations(CharacterOrientations.RIGHT);
                         }
 
                     }

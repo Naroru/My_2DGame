@@ -13,29 +13,31 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-public class GameField extends JFrame implements KeyListener {
+public class Game extends JFrame implements KeyListener {
 
     private Character  mainHero;
     private Character NPS;
-    private ManagerPlayerAction managerPlayerAction;
+    private ManagerPlayerAction managerPlayerAction = new ManagerPlayerAction();
 
     public static final int FLOOR_Y_COORDINATE = 365;
 
-    public GameField()  {
+    public Game()  {
+
 
         FrameManagers.setDefaultSettingsToFrame(this);
         this.setSize(1076, 540);
         this.addKeyListener(this);
 
-        JLabel enviroment = createEnviroment();
+        JLabel environment = createEnviroment();
 
-        mainHero = Character.createCharacter(100,FLOOR_Y_COORDINATE,"mainHeroPicturesFolder",3,enviroment, Directions.RIGHT);
-        NPS = Character.createCharacter(660, FLOOR_Y_COORDINATE,"mainHeroPicturesFolder", 2,enviroment, Directions.LEFT);
-        NPS.setDelayMillsec(9);
+        mainHero = Character.createMainHero(environment);
+        NPS = Character.createNPS(environment);
 
-        //AI.npsAIStart(NPS);
+        AI.npsAIStart(NPS, mainHero);
+        managerPlayerAction.startManagePlayerAction(mainHero);
 
-        this.add(enviroment,BorderLayout.CENTER);
+
+        this.add(environment,BorderLayout.CENTER);
 
     }
 

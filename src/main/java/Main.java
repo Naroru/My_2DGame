@@ -1,11 +1,12 @@
-import Frames.GameField;
-import Frames.StartFrame;
+import Frames.Game;
 
 import java.io.IOException;
 
 public class Main {
 
     public static void main(String[] args) throws IOException {
+
+
 
     /*    try {
             File soundFile = new File("C:\\Users\\Oleg\\Desktop\\Sound.wav"); //Звуковой файл
@@ -38,7 +39,7 @@ public class Main {
 
 
 
-        GameField startFrame = new GameField();
+        Game game = new Game();
 
     }
 
