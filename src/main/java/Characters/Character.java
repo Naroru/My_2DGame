@@ -31,7 +31,7 @@ public class Character {
         Character nps = new Character();
         nps.characterLabel = nps.new CharacterLabel();
 
-        // для рандомных нпс надо генерить различные pictures folder. Определить их можно в мапе в Game например
+        // Для рандомных нпс надо генерить различные pictures folder. Определить их можно в мапе в Game например
         // Пока же пишем как константу
         nps.characterLabel.setPropertyPicturesFolder("nps.picturesFolder");
 
