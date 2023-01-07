@@ -2,7 +2,6 @@ package Characters;
 
 import Enums.ActionTypes;
 import Enums.CharacterOrientations;
-import Enums.Directions;
 import Frames.Game;
 import Managers.IconManager;
 import Managers.PropertiesManager;
@@ -67,15 +66,26 @@ public class Character {
     public Thread move() {
 
         Thread movingThread = new Thread(() -> {
+
+            if (!isJumping && !isFighting)
+                characterLabel.updateCharacterLabelIcon(ActionTypes.MOVE);
+
             if (!isMoving) {
 
                 isMoving = true;
 
-                if (!isJumping && !isFighting)
-                    characterLabel.updateCharacterLabelIcon(ActionTypes.MOVE);
+                while (isMoving) {
 
-                while (isMoving && !isFighting)
-                    characterLabel.moveCharacterLabelByXYCoordinates(X_SPEED_MOVEMENT, Y_SPEED_MOVEMENT);
+                    int xSpeed = X_SPEED_MOVEMENT;
+
+                    if(characterLabel.isFightAnimationIsOn())
+                         xSpeed  = 0;
+
+                    else if (isJumping)
+                         xSpeed = X_SPEED_MOVEMENT/2;
+
+                    characterLabel.moveCharacterLabelByXYCoordinates(xSpeed, Y_SPEED_MOVEMENT);
+                }
 
             }
         });
@@ -83,6 +93,7 @@ public class Character {
         movingThread.start();
         return movingThread;
     }
+
 
     public CharacterLabel getCharacterLabel() {
         return characterLabel;
@@ -97,7 +108,7 @@ public class Character {
                 isJumping = true;
                 characterLabel.updateCharacterLabelIcon(ActionTypes.JUMP);
 
-                int xJumpingSpeed = X_SPEED_MOVEMENT / 2;
+                int xJumpingSpeed = X_SPEED_MOVEMENT / 3;
 
                 // jumping up
                 for (int i = -18; i < 0; i++) {
@@ -126,18 +137,20 @@ public class Character {
             if (!isJumping && !isFighting) {
 
                 isFighting = true;
-                isMoving = false;
 
                 characterLabel.updateCharacterLabelIcon(ActionTypes.FIGHT);
 
                 while (isFighting) {
 
                     for (int i = 0; i < 3; i++) {
-
-                        ThreadsWaiting.wait(400);
+                        // animation is run
+                        characterLabel.setFightAnimationIsOn(true);
+                            ThreadsWaiting.wait(400);
+                        characterLabel.setFightAnimationIsOn(false);
 
                         if (!isFighting)
                             break;
+
                     }
                 }
             }
@@ -183,6 +196,15 @@ public class Character {
     {
         private volatile CharacterOrientations  characterOrientations = CharacterOrientations.RIGHT;
         private int iconOffset;
+        private boolean fightAnimationIsOn = false;
+
+        public boolean isFightAnimationIsOn() {
+            return fightAnimationIsOn;
+        }
+
+        public void setFightAnimationIsOn(boolean fightAnimationIsOn) {
+            this.fightAnimationIsOn = fightAnimationIsOn;
+        }
 
         private String PropertyPicturesFolder;
 

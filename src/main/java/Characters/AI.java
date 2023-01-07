@@ -5,16 +5,12 @@ import Managers.ThreadsWaiting;
 
 public class AI {
 
-    static Thread thread;
-
     private static boolean needMoving = false;
     private static boolean needFighting = false;
 
 
         public static  void npsAIStart(Character nps, Character mainHero)
         {
-
-         //   wait(800);
 
             updateNPSState(nps, mainHero);
 
@@ -40,15 +36,15 @@ public class AI {
 
         private static void updateNPSState(Character nps, Character mainHero){
 
-            Thread threadStateNPSDefinition = new Thread(() -> {
+                Thread threadStateNPSDefinition = new Thread(() -> {
 
                 Character.CharacterLabel npsLabel = nps.getCharacterLabel();
                 Character.CharacterLabel mainHeroLabel = mainHero.getCharacterLabel();
 
-                int nps_xCoordinate =  npsLabel.getX();
-                int mainHero_xCoordinate = mainHeroLabel.getX();
-
                 while (true) {
+
+                    int nps_xCoordinate =  npsLabel.getX();
+                    int mainHero_xCoordinate = mainHeroLabel.getX();
 
                     if (mainHero_xCoordinate< nps_xCoordinate) {
 

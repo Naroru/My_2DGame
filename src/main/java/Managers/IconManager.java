@@ -19,14 +19,14 @@ public class IconManager {
 
     static {
         offsetMap = new HashMap<>();
-        offsetMap.put("/gifs/characters/mainHero/fightLeft.gif", -95);
+        offsetMap.put("gifs/characters/mainHero/fightLeft.gif", -95);
     }
 
     public static int getPictureOffset(String fullPath) {
 
         String pathToResourceres = IconManager.class.getResource("/").getFile();
 
-        String url = fullPath.substring(fullPath.indexOf(pathToResourceres));
+        String url = fullPath.replace(pathToResourceres,"");
         Optional<Integer> offset = Optional.ofNullable(offsetMap.get(url));
         return offset.orElse(0);
     }

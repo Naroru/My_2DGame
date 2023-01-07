@@ -1,108 +1,104 @@
 package Characters;
 import Characters.Character;
+import Enums.ActionTypes;
 import Enums.CharacterOrientations;
 import Managers.ThreadsWaiting;
 
 public class ManagerPlayerAction {
 
-    private volatile boolean rightMovingButtonActive;
-    private volatile boolean leftMovingButtonActive;
-    private volatile boolean jumpButtonActive;
-    private volatile boolean fightButtonActive;
-
     private Character mainHero;
+    private Character.CharacterLabel mainHeroLabel;
+    private boolean fightAnimationIsRun = false;
 
-    public void startManagePlayerAction() {
-       /* Thread playerActionThread = new Thread(() ->
-        {
-            Character.CharacterLabel mainHeroLabel = mainHero.getCharacterLabel();
-
-            updateMainHeroState(mainHero);
-
-            while (true) {
-
-                if (rightMovingButtonActive || leftMovingButtonActive) {
-
-                    if (rightMovingButtonActive && !leftMovingButtonActive)
-                        mainHeroLabel.setCharacterOrientations(CharacterOrientations.RIGHT);
-                    else if (!rightMovingButtonActive)
-                        mainHeroLabel.setCharacterOrientations(CharacterOrientations.LEFT);
-
-                    Thread movingThread = mainHero.move();
-                    ThreadsWaiting.wait(movingThread);
-
-                }
-
-                if (jumpButtonActive)
-                    mainHero.jump();
-                else
-                    mainHero.setJumping(false);
-
-                if (fightButtonActive)
-                    mainHero.fight();
-                else
-                    mainHero.setFighting(false);
-
-                if (!mainHero.isMoving() && !mainHero.isFighting() && !mainHero.isJumping())
-                    mainHero.stay();
-
-                ThreadsWaiting.wait(100);
-            }
-        });
-
-        playerActionThread.start();*/
+    private boolean mainHeroAct()
+    {
+        return mainHero.isMoving() || mainHero.isFighting() || mainHero.isJumping();
     }
-    public ManagerPlayerAction() {
 
-        rightMovingButtonActive = false;
-        leftMovingButtonActive = false;
-        jumpButtonActive = false;
-        fightButtonActive = false;
-    }
 
     public void setMainHero(Character mainHero) {
         this.mainHero = mainHero;
+        this.mainHeroLabel = mainHero.getCharacterLabel();
     }
 
-    private void updateMainHeroState(Character mainHero)
+    public void moveMainHeroRight()
     {
-        Thread updateStateThread = new Thread(() ->
+
+
+        mainHeroLabel.setCharacterOrientations(CharacterOrientations.RIGHT);
+        mainHero.move();
+
+    }
+
+    public void moveMainHeroLeft()
+    {
+
+
+        mainHeroLabel.setCharacterOrientations(CharacterOrientations.LEFT);
+        mainHero.move();
+
+    }
+
+    public void stopMainHeroMovingRight()
+    {
+        if (mainHero.isMoving() && mainHeroLabel.getCharacterOrientations() == CharacterOrientations.RIGHT)
+            mainHero.setMoving(false);
+
+        if(!mainHeroAct())
+            mainHero.stay();
+
+    }
+
+    public void stopMainHeroMovingLeft()
+    {
+        if (mainHero.isMoving() && mainHeroLabel.getCharacterOrientations() == CharacterOrientations.LEFT)
+            mainHero.setMoving(false);
+
+        if(!mainHeroAct())
+            mainHero.stay();
+    }
+
+    public void jumpMainHero()
+    {
+        Thread managerJumpThread = new Thread(() ->
         {
-            while (true) {
-                if (!rightMovingButtonActive && !leftMovingButtonActive)
-                    mainHero.setMoving(false);
+            Thread jumpThread = mainHero.jump();
+            ThreadsWaiting.wait(jumpThread);
 
-                if (!jumpButtonActive)
-                    mainHero.setJumping(false);
-
-                if (!fightButtonActive)
-                    mainHero.setFighting(false);
-
-                ThreadsWaiting.wait(10);
-            }
+            if (!mainHeroAct())
+                mainHero.stay();
+            else if(mainHero.isMoving())
+                //if it was jumping with moving and moving is active, character should continue moving
+                mainHero.move();
         });
 
-        updateStateThread.start();
+        managerJumpThread.start();
+    }
+
+    public void fightMainHero()
+    {
+        Thread managerFightThread = new Thread(() ->
+        {
+            fightAnimationIsRun = true;
+            Thread fightThread = mainHero.fight();
+            ThreadsWaiting.wait(fightThread);
+            fightAnimationIsRun = false;
+
+            if (!mainHeroAct())
+                mainHero.stay();
+            else if(mainHero.isMoving())
+                //if it was jumping with moving and moving is active, character should continue moving
+                mainHero.move();
+        });
+
+        managerFightThread.start();
 
     }
 
-    public void setRightMovingButtonActive(boolean rightMovingButtonActive) {
+    public void stopMainHeroFight()
+    {
+          mainHero.setFighting(false);
 
-        this.rightMovingButtonActive = rightMovingButtonActive;
-
-        if (!rightMovingButtonActive)
-            mainHero.setMoving(false);
     }
 
-    public void setLeftMovingButtonActive(boolean leftMovingButtonActive) {
-        this.leftMovingButtonActive = leftMovingButtonActive;
-    }
-
-    public void setJumpButtonActive(boolean jumpButtonActive) {
-        this.jumpButtonActive = jumpButtonActive;
-    }
-
-    public void setFightButtonActive(boolean fightButtonActive) {
-        this.fightButtonActive = fightButtonActive;
-    }
 }

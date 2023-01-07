@@ -30,11 +30,12 @@ public class Game extends JFrame implements KeyListener {
         JLabel environment = createEnviroment();
 
         mainHero = Character.createMainHero(environment);
-        NPS = Character.createNPS(environment);
-
-        AI.npsAIStart(NPS, mainHero);
         managerPlayerAction.setMainHero(mainHero);
-        managerPlayerAction.startManagePlayerAction();
+
+        NPS = Character.createNPS(environment);
+        AI.npsAIStart(NPS, mainHero);
+
+
 
 
         this.add(environment,BorderLayout.CENTER);
@@ -60,26 +61,23 @@ public class Game extends JFrame implements KeyListener {
     public void keyPressed(KeyEvent e) {
 
         if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A)
-            managerPlayerAction.setLeftMovingButtonActive(true);
-        else if  (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D)
-            managerPlayerAction.setRightMovingButtonActive(true);
+            managerPlayerAction.moveMainHeroLeft();
+        else if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D)
+            managerPlayerAction.moveMainHeroRight();
         else if (e.getKeyCode() == KeyEvent.VK_W)
-            managerPlayerAction.setJumpButtonActive(true);
+            managerPlayerAction.jumpMainHero();
         else if (e.getKeyCode() == KeyEvent.VK_SPACE)
-            managerPlayerAction.setFightButtonActive(true);
+            managerPlayerAction.fightMainHero();
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-
-        if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A)
-            managerPlayerAction.setLeftMovingButtonActive(false);
+        if (e.getKeyCode() == KeyEvent.VK_LEFT  || e.getKeyCode() == KeyEvent.VK_A)
+            managerPlayerAction.stopMainHeroMovingLeft();
         else if  (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D)
-            managerPlayerAction.setRightMovingButtonActive(false);
-        else if (e.getKeyCode() == KeyEvent.VK_W)
-            managerPlayerAction.setJumpButtonActive(false);
+            managerPlayerAction.stopMainHeroMovingRight();
         else if (e.getKeyCode() == KeyEvent.VK_SPACE)
-            managerPlayerAction.setFightButtonActive(false);
+            managerPlayerAction.stopMainHeroFight();
 
     }
 }
