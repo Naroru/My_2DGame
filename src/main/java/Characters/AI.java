@@ -1,47 +1,32 @@
 package Characters;
 
-import Frames.GameField;
+import Enums.CharacterOrientations;
+import Managers.ThreadsWaiting;
 
 public class AI {
 
-    static Thread thread;
-private static boolean needMoving = false;
+    private static boolean needMoving = false;
     private static boolean needFighting = false;
 
-    public static  void wait(int millisec)
-    {
-        try {
-            Thread.sleep(millisec);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-        public static  void npsAIStart(Character nps)
+
+        public static  void npsAIStart(Character nps, Character mainHero)
         {
-            updateNPSState(nps);
+
+            updateNPSState(nps, mainHero);
 
             Thread AI = new Thread(() -> {
                 while (true) {
 
-                    wait(200);
-
+                    ThreadsWaiting.wait(200);
 
                     if (needMoving) {
                         Thread moveThread = nps.move();
-                        try {
-                            moveThread.join();
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
+                        ThreadsWaiting.wait(moveThread);
                     }
 
-                    if(needFighting) {
+                    if (needFighting) {
                         Thread fightThread = nps.fight();
-                        try {
-                            fightThread.join();
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
+                        ThreadsWaiting.wait(fightThread);
                     }
                 }
             });
@@ -49,19 +34,23 @@ private static boolean needMoving = false;
             AI.start();
         }
 
-        private static void updateNPSState(Character nps){
+        private static void updateNPSState(Character nps, Character mainHero){
 
-            Thread threadStateNPSDefinition = new Thread(() -> {
+                Thread threadStateNPSDefinition = new Thread(() -> {
 
-                Character mainHero = GameField.getMainHero();
+                Character.CharacterLabel npsLabel = nps.getCharacterLabel();
+                Character.CharacterLabel mainHeroLabel = mainHero.getCharacterLabel();
 
                 while (true) {
 
-                    if (mainHero.getX() < nps.getX()) {
+                    int nps_xCoordinate =  npsLabel.getX();
+                    int mainHero_xCoordinate = mainHeroLabel.getX();
 
-                        int mainHeroRightBorderX = mainHero.getX() + mainHero.getIcon().getIconWidth();
+                    if (mainHero_xCoordinate< nps_xCoordinate) {
 
-                        if (mainHeroRightBorderX >= nps.getX())
+                        int mainHeroRightBorderX = mainHero_xCoordinate + mainHeroLabel.getIcon().getIconWidth();
+
+                        if (mainHeroRightBorderX >= nps_xCoordinate)
                         {
                             needFighting = true;
                             needMoving = false;
@@ -71,12 +60,12 @@ private static boolean needMoving = false;
                             needFighting = false;
                             needMoving = true;
                             nps.setFighting(false);
-                            nps.setRightOrientation(false);
+                            npsLabel.setCharacterOrientations(CharacterOrientations.LEFT);
                         }
 
-                    } else if (mainHero.getX() > nps.getX()) {
-                        int npsRightBorderX = nps.getX() + nps.getIcon().getIconWidth();
-                        int mainHeroX = mainHero.getX();
+                    } else if (mainHero_xCoordinate > nps_xCoordinate) {
+                        int npsRightBorderX = nps_xCoordinate + npsLabel.getIcon().getIconWidth();
+                        int mainHeroX = mainHero_xCoordinate;
 
                         if (mainHeroX <= npsRightBorderX)
                         {
@@ -88,12 +77,12 @@ private static boolean needMoving = false;
                             needFighting = false;
                             needMoving = true;
                             nps.setFighting(false);
-                            nps.setRightOrientation(true);
+                            npsLabel.setCharacterOrientations(CharacterOrientations.RIGHT);
                         }
 
                     }
 
-                 wait(10);
+                    ThreadsWaiting.wait(10);
                 }
 
             });

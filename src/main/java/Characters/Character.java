@@ -1,93 +1,93 @@
 package Characters;
 
-import Enums.Directions;
-import Frames.GameField;
+import Enums.ActionTypes;
+import Enums.CharacterOrientations;
+import Frames.Game;
 import Managers.IconManager;
+import Managers.PropertiesManager;
+import Managers.ThreadsWaiting;
 
 import javax.swing.*;
-import java.awt.*;
+import java.net.URL;
 
-public class Character extends JLabel{
+public class Character {
 
-    public void setxIncrement(int xIncrement) {
-        this.xIncrement = xIncrement;
-    }
+    private static final int DELAY_MILLISEC = 15;
+    private static final int X_SPEED_MOVEMENT = 6;
+    private static final int Y_SPEED_MOVEMENT = 0;
 
-    private  int xIncrement = 2;
+    private CharacterLabel characterLabel;
 
-    private int offsetForPic;
-
-
-    private   int delayMillsec = 5;
-    private int countAttackAnimation; //depends of gif file
-    private volatile boolean rightOrientation = true;
-    private volatile boolean  isMoving = false;
+    private volatile boolean isMoving = false;
     private volatile boolean isJumping = false;
-    private volatile boolean fightAnimationIsRun = false;
     private volatile boolean isFighting = false;
 
-    private String PropertyPicturesFolder;
 
-
-    public void setDelayMillsec(int delayMillsec) {
-        this.delayMillsec = delayMillsec;
-    }
-    public void setPropertyPicturesFolder(String PropertyPicturesFolder) {
-        this.PropertyPicturesFolder = PropertyPicturesFolder;
-    }
-
-    public void setMoving(boolean moving) {
-        isMoving = moving;
-    }
-
-    public static Character createCharacter(int xPos, int yPos, String PropertyPicturesFolder, int countAttackAnimation, JLabel scene, Directions direction)
+    public static Character createNPS(JLabel scene)
     {
-        Character character = new Character();
+        int yPos = Game.FLOOR_Y_COORDINATE;
+        int xPos = Integer.parseInt(PropertiesManager.getProperty("nps.startPositionX"));
 
+        Character nps = new Character();
+        nps.characterLabel = nps.new CharacterLabel();
 
-        character.setPropertyPicturesFolder(PropertyPicturesFolder);
+        // Для рандомных нпс надо генерить различные pictures folder. Определить их можно в мапе в Game например
+        // Пока же пишем как константу
+        nps.characterLabel.setPropertyPicturesFolder("nps.picturesFolder");
 
-        String propetyPictureName = "CharacterStayingRightPictureName";
+        nps.characterLabel.setCharacterOrientations(CharacterOrientations.LEFT);
+        nps.characterLabel.updateCharacterLabelIcon(ActionTypes.STAY);
 
-        if (direction == Directions.LEFT)
-             propetyPictureName = "CharacterStayingLeftPictureName";
+        Icon characterIcon =  nps.characterLabel.getIcon();
+        nps.characterLabel.setBounds(xPos, yPos - characterIcon.getIconHeight(),characterIcon.getIconWidth(),characterIcon.getIconHeight());
 
-        ImageIcon characterIcon = IconManager.getImageIcon(PropertyPicturesFolder,propetyPictureName);
-
-        character.setBounds(xPos, yPos - characterIcon.getIconHeight(),characterIcon.getIconWidth(),characterIcon.getIconHeight());
-        character.setIcon(characterIcon);
-
-        scene.add(character);
-
-        return character;
+        scene.add(nps.characterLabel);
+        return nps;
     }
 
-    public boolean isJumping() {
-        return isJumping;
-    }
+    public static Character createMainHero(JLabel scene)
+    {
+        int yPos = Game.FLOOR_Y_COORDINATE;
+        int xPos = Integer.parseInt(PropertiesManager.getProperty("mainHero.startPositionX"));
 
-    public void setJumping(boolean jumping) {
-        isJumping = jumping;
-    }
+        Character mainHero = new Character();
 
-    public boolean isMoving() {
-        return isMoving;
-    }
-    public void setRightOrientation(boolean rightOrientation) {
-        this.rightOrientation = rightOrientation;
-    }
+        mainHero.characterLabel = mainHero.new CharacterLabel();
+        mainHero.characterLabel.setPropertyPicturesFolder("mainHero.picturesFolder");
+        mainHero.characterLabel.setCharacterOrientations(CharacterOrientations.RIGHT);
+        mainHero.characterLabel.updateCharacterLabelIcon(ActionTypes.STAY);
 
+        Icon characterIcon =  mainHero.characterLabel.getIcon();
+        mainHero.characterLabel.setBounds(xPos, yPos - characterIcon.getIconHeight(),characterIcon.getIconWidth(),characterIcon.getIconHeight());
+
+        scene.add(mainHero.characterLabel);
+        return mainHero;
+    }
     public Thread move() {
-  
+
         Thread movingThread = new Thread(() -> {
-            setMoving(true);
 
             if (!isJumping && !isFighting)
+                characterLabel.updateCharacterLabelIcon(ActionTypes.MOVE);
 
-                setActionIcon("CharacterMovingRightPictureName", "CharacterMovingLeftPictureName");
+            if (!isMoving) {
 
-            while (isMoving && !isFighting)
-                moveCharacterByXYCoordinates(xIncrement, 0, delayMillsec);
+                isMoving = true;
+
+                while (isMoving) {
+
+                    int xSpeed = X_SPEED_MOVEMENT;
+
+                    if(characterLabel.isFightAnimationIsOn())
+                         xSpeed  = 0;
+
+                    else if (isJumping)
+                         xSpeed = X_SPEED_MOVEMENT/2;
+
+                    characterLabel.moveCharacterLabelByXYCoordinates(xSpeed, Y_SPEED_MOVEMENT);
+                }
+
+            }
         });
 
         movingThread.start();
@@ -95,149 +95,184 @@ public class Character extends JLabel{
     }
 
 
-    private void moveCharacterByXYCoordinates( int xIncrement, int yIncrement, int delayMillsec) {
-
-        int x = getX();
-        int y = getY();
-
-        if (rightOrientation)
-            x += xIncrement;
-        else
-            x -= xIncrement;
-
-        if(x<0)
-            x = 0;
-        else if (x > 1076 - getIcon().getIconWidth()) {
-           x =  1076 - getIcon().getIconWidth();
-        }
-        y += yIncrement;
-
-        setBounds(x, y, getIcon().getIconWidth(), getIcon().getIconHeight());
-
-
-        try {
-            Thread.sleep(delayMillsec);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+    public CharacterLabel getCharacterLabel() {
+        return characterLabel;
     }
 
-    public void jump() {
+    public Thread jump() {
 
-        if (!isJumping()) {
+        Thread jumpThread = new Thread(() -> {
 
-            setJumping(true);
-            setActionIcon("CharacterJumpRightPictureName", "CharacterJumpLeftPictureName");
+            if (!isJumping) {
 
-            Thread jumpThread = new Thread(() -> {
+                isJumping = true;
+                characterLabel.updateCharacterLabelIcon(ActionTypes.JUMP);
 
-// jumping up
-                for (int i = -12; i < 0; i++)
-                    moveCharacterByXYCoordinates(xIncrement, i, 30);
-//falling down
-                for (int i = 0; i < 12; i++)
-                    moveCharacterByXYCoordinates(xIncrement, i, 30);
+                int xJumpingSpeed = X_SPEED_MOVEMENT / 3;
 
+                // jumping up
+                for (int i = -18; i < 0; i++) {
+                    int YSpeed = i / 2;
+                    characterLabel.moveCharacterLabelByXYCoordinates(xJumpingSpeed, YSpeed);
+                }
+                //falling down
+                for (int i = 0; i < 18; i++) {
+                    int YSpeed = i / 2;
+                    characterLabel.moveCharacterLabelByXYCoordinates(xJumpingSpeed, YSpeed);
+                }
 
-                setJumping(false);
+                isJumping = false;
+            }
+        });
 
-                if (isMoving()) {
-                    setActionIcon("CharacterMovingRightPictureName", "CharacterMovingLeftPictureName");
-                } else stay();
-            });
-            jumpThread.start();
+        jumpThread.start();
 
-        }
-
+        return jumpThread;
     }
 
     public Thread fight() {
 
+        Thread fightThread = new Thread(() -> {
 
-            Thread jumpThread = new Thread(() -> {
+            if (!isJumping && !isFighting) {
 
-                if (!isJumping  && !fightAnimationIsRun) {
+                isFighting = true;
 
-                    setFighting(true);
-                    setMoving(false);
+                characterLabel.updateCharacterLabelIcon(ActionTypes.FIGHT);
 
-                    setActionIcon("CharacterFightRightPictureName", "CharacterFightLeftPictureName");
+                while (isFighting) {
 
-                    while (isFighting) {
+                    for (int i = 0; i < 3; i++) {
+                        // animation is run
+                        characterLabel.setFightAnimationIsOn(true);
+                            ThreadsWaiting.wait(400);
+                        characterLabel.setFightAnimationIsOn(false);
 
-                        for (int i = 0; i < countAttackAnimation; i++) {
-
-                            fightAnimationIsRun = true;
-
-                             AI.wait(400);
-
-                            if (!isFighting) {
-
-                                fightAnimationIsRun = false;
-                                if (isMoving)
-                                    setActionIcon("CharacterMovingRightPictureName", "CharacterMovingLeftPictureName");
-                                else
-                                    stay();
-                                break;
-                            }
-
-                        }
-
+                        if (!isFighting)
+                            break;
 
                     }
                 }
-            });
+            }
+        });
 
-            jumpThread.start();
+        fightThread.start();
 
-            return jumpThread;
-        }
-
+        return fightThread;
+    }
 
     public void stay() {
-        setMoving(false);
-        // setJumping(false);
-          setFighting(false);
 
-        if(!isJumping && !fightAnimationIsRun)
-            setActionIcon("CharacterStayingRightPictureName", "CharacterStayingLeftPictureName");
+        if(!isJumping && !isFighting)
+            characterLabel.updateCharacterLabelIcon(ActionTypes.STAY);
     }
 
-    public boolean isRightOrientation() {
-        return rightOrientation;
+    public void setMoving(boolean moving) {
+        isMoving = moving;
     }
 
-    private void setActionIcon(String propertyNameRightAction, String propertyNameLeftAction) {
-
-        ImageIcon actionCharacterIcon;
-
-        if (rightOrientation)
-            actionCharacterIcon = IconManager.getImageIcon(PropertyPicturesFolder, propertyNameRightAction);
-        else actionCharacterIcon = IconManager.getImageIcon(PropertyPicturesFolder, propertyNameLeftAction);
-
-        setIcon(actionCharacterIcon);
-
-        //change Y position according new pic height size
-        int newY = GameField.FLOOR_Y_COORDINATE - actionCharacterIcon.getIconHeight();
-
-        //change X position according new pic height
-
-        IconManager icon = (IconManager) getIcon();
-        int offset =  icon.getOffset() - offsetForPic; //  new offset - current offset
-        this.offsetForPic = icon.getOffset();
-
-        setBounds(getX() + offset, newY, actionCharacterIcon.getIconWidth(), actionCharacterIcon.getIconHeight());
-
+    public void setJumping(boolean jumping) {
+        isJumping = jumping;
     }
 
-    private Character() {
+    public void setFighting(boolean fighting) {
+        isFighting = fighting;
+    }
+
+    public boolean isMoving() {
+        return isMoving;
+    }
+
+    public boolean isJumping() {
+        return isJumping;
     }
 
     public boolean isFighting() {
         return isFighting;
     }
 
-    public void setFighting(boolean fighting) {
-        isFighting = fighting;
+    //--------------------------------------------------------------------------------
+    public class CharacterLabel extends JLabel
+    {
+        private volatile CharacterOrientations  characterOrientations = CharacterOrientations.RIGHT;
+        private int iconOffset;
+        private boolean fightAnimationIsOn = false;
+
+        public boolean isFightAnimationIsOn() {
+            return fightAnimationIsOn;
+        }
+
+        public void setFightAnimationIsOn(boolean fightAnimationIsOn) {
+            this.fightAnimationIsOn = fightAnimationIsOn;
+        }
+
+        private String PropertyPicturesFolder;
+
+        private void updateCharacterLabelIcon(ActionTypes action) {
+
+            URL newIconURL = IconManager.getActionIconURL(this, action);
+
+            ImageIcon newIcon = new ImageIcon(newIconURL);
+            setIcon(newIcon);
+
+            shiftLabelWithNewIcon(newIcon,newIconURL.getFile());
+        }
+
+        private void shiftLabelWithNewIcon(ImageIcon newIcon, String NewIconPathToFile) {
+
+            //change Y position according new pic height size
+            int newY = Game.FLOOR_Y_COORDINATE - newIcon.getIconHeight();
+
+            //change X position according new pic height
+            int OffsetNewIcon = IconManager.getPictureOffset(NewIconPathToFile);
+            int offset = OffsetNewIcon - iconOffset;
+
+            characterLabel.setBounds(characterLabel.getX() + offset, newY, newIcon.getIconWidth(), newIcon.getIconHeight());
+
+            iconOffset = OffsetNewIcon;
+        }
+
+
+        private void moveCharacterLabelByXYCoordinates(int xSpeedMovement, int ySpeedMovement) {
+
+            int x = getX();
+            int y = getY();
+
+            if (characterOrientations == CharacterOrientations.RIGHT)
+                x += xSpeedMovement;
+            else
+                x -= xSpeedMovement;
+
+            if(x<0)
+                x = 0;
+            else if (x > 1076 - getIcon().getIconWidth()) {
+                x =  1076 - getIcon().getIconWidth();
+            }
+            y += ySpeedMovement;
+
+            setBounds(x, y, getIcon().getIconWidth(), getIcon().getIconHeight());
+
+            try {
+                Thread.sleep(DELAY_MILLISEC);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public void setPropertyPicturesFolder(String PropertyPicturesFolder) {
+            this.PropertyPicturesFolder = PropertyPicturesFolder;
+        }
+
+        public String getPropertyPicturesFolder() {
+            return PropertyPicturesFolder;
+        }
+
+        public CharacterOrientations getCharacterOrientations() {
+            return characterOrientations;
+        }
+
+        public void setCharacterOrientations(CharacterOrientations characterOrientations) {
+            this.characterOrientations = characterOrientations;
+        }
     }
 }

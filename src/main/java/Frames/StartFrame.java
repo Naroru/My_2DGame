@@ -28,8 +28,6 @@ public class StartFrame extends JFrame   {
        labelChoose.setFont(new Font(null,Font.BOLD,16));
 
 
-
-
        useWeb.setBounds(50,65, 160, 30);
        useWeb.setFont(startFrameFont);
        useWeb.addActionListener(e -> onStartGameButtonClick());
@@ -49,7 +47,7 @@ public class StartFrame extends JFrame   {
 
     private void onStartGameButtonClick()
     {
-        FrameManagers.showWindow(new GameField());
+        FrameManagers.showWindow(new Game());
         this.dispose();
     }
 
