@@ -6,6 +6,7 @@ import Enums.Directions;
 import Frames.Game;
 import Managers.IconManager;
 import Managers.PropertiesManager;
+import Managers.ThreadsWaiting;
 
 import javax.swing.*;
 import java.net.URL;
@@ -64,19 +65,22 @@ public class Character {
         return mainHero;
     }
     public Thread move() {
-  
+
         Thread movingThread = new Thread(() -> {
+            if (!isMoving) {
 
-            isMoving = true;
+                isMoving = true;
 
-            if (!isJumping && !isFighting)
-                characterLabel.updateCharacterLabelIcon(ActionTypes.MOVE);
+                if (!isJumping && !isFighting)
+                    characterLabel.updateCharacterLabelIcon(ActionTypes.MOVE);
 
-            while (isMoving && !isFighting)
-                characterLabel.moveCharacterLabelByXYCoordinates(X_SPEED_MOVEMENT, Y_SPEED_MOVEMENT);
+                while (isMoving && !isFighting)
+                    characterLabel.moveCharacterLabelByXYCoordinates(X_SPEED_MOVEMENT, Y_SPEED_MOVEMENT);
+
+            }
         });
-        movingThread.start();
 
+        movingThread.start();
         return movingThread;
     }
 
@@ -96,12 +100,12 @@ public class Character {
                 int xJumpingSpeed = X_SPEED_MOVEMENT / 2;
 
                 // jumping up
-                for (int i = -12; i < 0; i++) {
+                for (int i = -18; i < 0; i++) {
                     int YSpeed = i / 2;
                     characterLabel.moveCharacterLabelByXYCoordinates(xJumpingSpeed, YSpeed);
                 }
                 //falling down
-                for (int i = 0; i < 12; i++) {
+                for (int i = 0; i < 18; i++) {
                     int YSpeed = i / 2;
                     characterLabel.moveCharacterLabelByXYCoordinates(xJumpingSpeed, YSpeed);
                 }
@@ -130,11 +134,7 @@ public class Character {
 
                     for (int i = 0; i < 3; i++) {
 
-                        try {
-                            Thread.sleep(400);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
+                        ThreadsWaiting.wait(400);
 
                         if (!isFighting)
                             break;
@@ -164,6 +164,18 @@ public class Character {
 
     public void setFighting(boolean fighting) {
         isFighting = fighting;
+    }
+
+    public boolean isMoving() {
+        return isMoving;
+    }
+
+    public boolean isJumping() {
+        return isJumping;
+    }
+
+    public boolean isFighting() {
+        return isFighting;
     }
 
     //--------------------------------------------------------------------------------

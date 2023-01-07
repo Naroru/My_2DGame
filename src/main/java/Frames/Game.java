@@ -3,10 +3,9 @@ package Frames;
 
 import Characters.AI;
 import Characters.Character;
-import Enums.Directions;
 import Managers.FrameManagers;
 import Managers.IconManager;
-import Managers.ManagerPlayerAction;
+import Characters.ManagerPlayerAction;
 
 import javax.swing.*;
 import java.awt.*;
@@ -34,7 +33,8 @@ public class Game extends JFrame implements KeyListener {
         NPS = Character.createNPS(environment);
 
         AI.npsAIStart(NPS, mainHero);
-        managerPlayerAction.startManagePlayerAction(mainHero);
+        managerPlayerAction.setMainHero(mainHero);
+        managerPlayerAction.startManagePlayerAction();
 
 
         this.add(environment,BorderLayout.CENTER);
@@ -80,14 +80,6 @@ public class Game extends JFrame implements KeyListener {
             managerPlayerAction.setJumpButtonActive(false);
         else if (e.getKeyCode() == KeyEvent.VK_SPACE)
             managerPlayerAction.setFightButtonActive(false);
-/*
-       boolean keyMovingReleased = e.getKeyCode() == KeyEvent.VK_LEFT
-                || e.getKeyCode() == KeyEvent.VK_A
-                || (e.getKeyCode() == KeyEvent.VK_RIGHT
-                || e.getKeyCode() == KeyEvent.VK_D);
 
-       boolean keyFightingReleased = e.getKeyCode() == KeyEvent.VK_SPACE;
-      if(keyMovingReleased || keyFightingReleased)
-        mainHero.stay();*/
     }
 }

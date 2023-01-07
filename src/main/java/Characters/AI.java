@@ -1,6 +1,7 @@
 package Characters;
 
 import Enums.CharacterOrientations;
+import Managers.ThreadsWaiting;
 
 public class AI {
 
@@ -9,43 +10,27 @@ public class AI {
     private static boolean needMoving = false;
     private static boolean needFighting = false;
 
-    private static void wait(int millisec)
-    {
-        try {
-            Thread.sleep(millisec);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
-    private static void wait(Thread thread)
-    {
-        try {
-            thread.join();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
         public static  void npsAIStart(Character nps, Character mainHero)
         {
 
-            wait(800);
+         //   wait(800);
 
             updateNPSState(nps, mainHero);
 
             Thread AI = new Thread(() -> {
                 while (true) {
 
-                    wait(200);
+                    ThreadsWaiting.wait(200);
 
                     if (needMoving) {
                         Thread moveThread = nps.move();
-                         wait(moveThread);
+                        ThreadsWaiting.wait(moveThread);
                     }
 
                     if (needFighting) {
                         Thread fightThread = nps.fight();
-                        wait(fightThread);
+                        ThreadsWaiting.wait(fightThread);
                     }
                 }
             });
@@ -101,7 +86,7 @@ public class AI {
 
                     }
 
-                 wait(10);
+                    ThreadsWaiting.wait(10);
                 }
 
             });
