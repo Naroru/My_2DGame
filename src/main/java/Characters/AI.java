@@ -1,7 +1,7 @@
 package Characters;
 
 import Enums.CharacterOrientations;
-import Managers.ThreadsWaiting;
+import CommonManagers.ThreadsWaiting;
 
 public class AI {
 

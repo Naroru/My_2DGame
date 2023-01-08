@@ -1,8 +1,6 @@
 package Characters;
-import Characters.Character;
-import Enums.ActionTypes;
 import Enums.CharacterOrientations;
-import Managers.ThreadsWaiting;
+import CommonManagers.ThreadsWaiting;
 
 public class ManagerPlayerAction {
 

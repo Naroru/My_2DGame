@@ -1,6 +1,6 @@
 package Frames;
 
-import Managers.FrameManagers;
+import CommonManagers.FrameManagers;
 
 import javax.swing.*;
 import java.awt.*;

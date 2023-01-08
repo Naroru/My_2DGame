@@ -3,52 +3,56 @@ package Frames;
 
 import Characters.AI;
 import Characters.Character;
-import Managers.FrameManagers;
-import Managers.IconManager;
+import CommonManagers.FrameManagers;
+import CommonManagers.IconManager;
 import Characters.ManagerPlayerAction;
+import GameObjects.GameObjectManager;
+import GameObjects.Portion;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Game extends JFrame implements KeyListener {
 
     private Character  mainHero;
     private Character NPS;
     private ManagerPlayerAction managerPlayerAction = new ManagerPlayerAction();
+    private JLabel environment;
+    private List <JLabel> charactersAndGameObjectLabels;
 
     public static final int FLOOR_Y_COORDINATE = 365;
 
     public Game()  {
 
-
         FrameManagers.setDefaultSettingsToFrame(this);
         this.setSize(1076, 540);
         this.addKeyListener(this);
 
-        JLabel environment = createEnviroment();
+        environment = createEnviroment();
+        charactersAndGameObjectLabels = new ArrayList<>();
 
-        mainHero = Character.createMainHero(environment);
+        mainHero = Character.createMainHero(this);
         managerPlayerAction.setMainHero(mainHero);
 
-        NPS = Character.createNPS(environment);
+        NPS = Character.createNPS(this);
         AI.npsAIStart(NPS, mainHero);
 
-
-
+        addHealthPortion();
 
         this.add(environment,BorderLayout.CENTER);
 
     }
 
     private static JLabel createEnviroment() {
-        //creating Enviroment
-        JLabel enviroment = new JLabel();
-        enviroment.setSize(1076,540);
-        enviroment.setLayout(null);
-        enviroment.setIcon(IconManager.getImageIcon("scenePicturesFolder", "scene1PictureName"));
-        return enviroment;
+        JLabel environment = new JLabel();
+        environment.setSize(1076,540);
+        environment.setLayout(null);
+        environment.setIcon(IconManager.getImageIcon("scenePicturesFolder", "scene1PictureName"));
+        return environment;
     }
 
 
@@ -79,5 +83,22 @@ public class Game extends JFrame implements KeyListener {
         else if (e.getKeyCode() == KeyEvent.VK_SPACE)
             managerPlayerAction.stopMainHeroFight();
 
+    }
+
+    public JLabel getEnvironment() {
+        return environment;
+    }
+
+    public List<JLabel> getCharactersAndGameObjectLabels() {
+        return charactersAndGameObjectLabels;
+    }
+
+    private void addHealthPortion()
+    {
+
+        ImageIcon healthPortionIcon = IconManager.getImageIcon("healthPortionIcon");
+        Portion healthPortion = new Portion(healthPortionIcon);
+
+        GameObjectManager.addNewObjectToGame(healthPortion, this);
     }
 }

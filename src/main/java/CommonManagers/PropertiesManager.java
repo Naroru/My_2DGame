@@ -1,4 +1,4 @@
-package Managers;
+package CommonManagers;
 
 import java.io.FileInputStream;
 import java.io.IOException;

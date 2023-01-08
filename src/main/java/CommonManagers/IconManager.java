@@ -1,13 +1,10 @@
-package Managers;
+package CommonManagers;
 
 import Characters.Character;
 import Enums.ActionTypes;
 import Enums.CharacterOrientations;
-import Frames.Game;
 
 import javax.swing.*;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
@@ -68,6 +65,15 @@ public class IconManager {
         String fileName =  PropertiesManager.getProperty(PropertyPicName);
 
         URL sceneURL = IconManager.class.getResource(folder+fileName);
+        return new ImageIcon(sceneURL);
+
+    }
+
+    public static ImageIcon getImageIcon(String PropertyFullPathToIcon)
+    {
+        String fullPathToIcon = PropertiesManager.getProperty(PropertyFullPathToIcon);
+
+        URL sceneURL = IconManager.class.getResource(fullPathToIcon);
         return new ImageIcon(sceneURL);
 
     }

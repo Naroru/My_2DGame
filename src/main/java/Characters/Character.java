@@ -3,11 +3,12 @@ package Characters;
 import Enums.ActionTypes;
 import Enums.CharacterOrientations;
 import Frames.Game;
-import Managers.IconManager;
-import Managers.PropertiesManager;
-import Managers.ThreadsWaiting;
+import CommonManagers.IconManager;
+import CommonManagers.PropertiesManager;
+import CommonManagers.ThreadsWaiting;
 
 import javax.swing.*;
+import java.awt.*;
 import java.net.URL;
 
 public class Character {
@@ -22,13 +23,17 @@ public class Character {
     private volatile boolean isJumping = false;
     private volatile boolean isFighting = false;
 
+    private volatile int health;
 
-    public static Character createNPS(JLabel scene)
+    public static Character createNPS(Game game)
     {
         int yPos = Game.FLOOR_Y_COORDINATE;
         int xPos = Integer.parseInt(PropertiesManager.getProperty("nps.startPositionX"));
 
+        JLabel environment = game.getEnvironment();
+
         Character nps = new Character();
+        nps.health = Integer.parseInt(PropertiesManager.getProperty("nps.health"));
         nps.characterLabel = nps.new CharacterLabel();
 
         // Для рандомных нпс надо генерить различные pictures folder. Определить их можно в мапе в Game например
@@ -36,33 +41,41 @@ public class Character {
         nps.characterLabel.setPropertyPicturesFolder("nps.picturesFolder");
 
         nps.characterLabel.setCharacterOrientations(CharacterOrientations.LEFT);
+
+        return createCharacterContinue(game, yPos, xPos, environment, nps);
+    }
+
+    private static Character createCharacterContinue(Game game, int yPos, int xPos, JLabel environment, Character nps) {
         nps.characterLabel.updateCharacterLabelIcon(ActionTypes.STAY);
 
         Icon characterIcon =  nps.characterLabel.getIcon();
         nps.characterLabel.setBounds(xPos, yPos - characterIcon.getIconHeight(),characterIcon.getIconWidth(),characterIcon.getIconHeight());
 
-        scene.add(nps.characterLabel);
+        environment.add(nps.characterLabel);
+        game.getCharactersAndGameObjectLabels().add(nps.characterLabel);
+
         return nps;
     }
 
-    public static Character createMainHero(JLabel scene)
+    public static Character createMainHero(Game game)
     {
         int yPos = Game.FLOOR_Y_COORDINATE;
         int xPos = Integer.parseInt(PropertiesManager.getProperty("mainHero.startPositionX"));
 
+        JLabel environment = game.getEnvironment();
+
         Character mainHero = new Character();
+
+        mainHero.health = Integer.parseInt(PropertiesManager.getProperty("mainHero.health"));
 
         mainHero.characterLabel = mainHero.new CharacterLabel();
         mainHero.characterLabel.setPropertyPicturesFolder("mainHero.picturesFolder");
         mainHero.characterLabel.setCharacterOrientations(CharacterOrientations.RIGHT);
-        mainHero.characterLabel.updateCharacterLabelIcon(ActionTypes.STAY);
 
-        Icon characterIcon =  mainHero.characterLabel.getIcon();
-        mainHero.characterLabel.setBounds(xPos, yPos - characterIcon.getIconHeight(),characterIcon.getIconWidth(),characterIcon.getIconHeight());
 
-        scene.add(mainHero.characterLabel);
-        return mainHero;
+        return createCharacterContinue(game, yPos, xPos, environment, mainHero);
     }
+
     public Thread move() {
 
         Thread movingThread = new Thread(() -> {
@@ -196,7 +209,18 @@ public class Character {
     {
         private volatile CharacterOrientations  characterOrientations = CharacterOrientations.RIGHT;
         private int iconOffset;
-        private boolean fightAnimationIsOn = false;
+        private boolean fightAnimationIsOn;
+
+        private final JLabel labelHealth;
+
+        public CharacterLabel() {
+            fightAnimationIsOn = false;
+            labelHealth = new JLabel();
+
+            labelHealth.setBackground(Color.GREEN);
+            labelHealth.setBounds(getX(),getY(),10,10);
+            this.add(labelHealth);
+        }
 
         public boolean isFightAnimationIsOn() {
             return fightAnimationIsOn;
@@ -243,7 +267,7 @@ public class Character {
             else
                 x -= xSpeedMovement;
 
-            if(x<0)
+            if( x < 0 )
                 x = 0;
             else if (x > 1076 - getIcon().getIconWidth()) {
                 x =  1076 - getIcon().getIconWidth();
@@ -252,11 +276,8 @@ public class Character {
 
             setBounds(x, y, getIcon().getIconWidth(), getIcon().getIconHeight());
 
-            try {
-                Thread.sleep(DELAY_MILLISEC);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            ThreadsWaiting.wait(DELAY_MILLISEC);
+
         }
 
         public void setPropertyPicturesFolder(String PropertyPicturesFolder) {
@@ -273,6 +294,10 @@ public class Character {
 
         public void setCharacterOrientations(CharacterOrientations characterOrientations) {
             this.characterOrientations = characterOrientations;
+        }
+
+        public JLabel getLabelHealth() {
+            return labelHealth;
         }
     }
 }

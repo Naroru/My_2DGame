@@ -1,7 +1,6 @@
-package Managers;
+package CommonManagers;
 
 import javax.swing.*;
-import java.awt.*;
 
 public class FrameManagers {
 

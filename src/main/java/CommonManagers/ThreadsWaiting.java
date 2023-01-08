@@ -1,4 +1,4 @@
-package Managers;
+package CommonManagers;
 
 public class ThreadsWaiting {
 
