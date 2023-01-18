@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+org.OlegChukhlantsev.Main-Class: org.OlegChukhlantsev.Main
+
