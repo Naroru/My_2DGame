@@ -6,11 +6,11 @@ import org.OlegChukhlantsev.Enums.CharacterOrientations;
 import org.OlegChukhlantsev.Frames.Game;
 import org.OlegChukhlantsev.GameObjects.GameObject;
 import org.OlegChukhlantsev.GameObjects.GameObjectManager;
-import org.springframework.stereotype.Component;
+
 
 import javax.swing.*;
 
-@Component
+
 public class InteractionManager {
 
     public static  Game game;

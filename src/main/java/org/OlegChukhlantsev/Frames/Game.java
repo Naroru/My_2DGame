@@ -13,7 +13,7 @@ import org.OlegChukhlantsev.Characters.ManagerPlayerAction;
 import org.OlegChukhlantsev.GameObjects.GameObject;
 import org.OlegChukhlantsev.GameObjects.GameObjectManager;
 import org.OlegChukhlantsev.GameObjects.Portion;
-import org.springframework.stereotype.Component;
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,7 +22,7 @@ import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+
 public class Game extends JFrame implements KeyListener {
 
     private Character  mainHero;

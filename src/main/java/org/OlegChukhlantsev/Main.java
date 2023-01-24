@@ -2,7 +2,7 @@ package org.OlegChukhlantsev;
 
 import org.OlegChukhlantsev.Characters.InteractionManager;
 import org.OlegChukhlantsev.Frames.Game;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
 
 import java.io.IOException;
 
