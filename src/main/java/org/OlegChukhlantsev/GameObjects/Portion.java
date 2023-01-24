@@ -1,6 +1,8 @@
 package org.OlegChukhlantsev.GameObjects;
 
 import org.OlegChukhlantsev.Characters.Character;
+import org.OlegChukhlantsev.Characters.Sounds.Sound;
+import org.OlegChukhlantsev.CommonManagers.PropertiesManager;
 import org.OlegChukhlantsev.Frames.Game;
 
 import javax.swing.*;
@@ -19,12 +21,14 @@ public class Portion extends GameObject{
     @Override
     public void effectOnHero(Character mainHero) {
 
-
-        if(mainHero.getCurrent_health() < mainHero.getInitial_health()) {
-
+        Sound.playSound(PropertiesManager.getNotNullableProperty("portionMusic"));
             int newHealth = Math.min(mainHero.getCurrent_health() + health, mainHero.getInitial_health());
-            mainHero.setCurrent_health(newHealth);
 
-        }
+            mainHero.setCurrent_health(newHealth);
+    }
+
+    @Override
+    public boolean needToUse(Character mainHero) {
+        return mainHero.getCurrent_health() < mainHero.getInitial_health();
     }
 }

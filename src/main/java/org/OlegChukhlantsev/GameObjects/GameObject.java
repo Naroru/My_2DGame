@@ -15,6 +15,7 @@ public  abstract  class GameObject extends JLabel {
 
     public abstract void effectOnHero(Character mainHero);
 
+    public abstract boolean needToUse(Character mainHero);
 
 
 }

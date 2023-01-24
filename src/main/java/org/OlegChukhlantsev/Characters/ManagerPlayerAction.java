@@ -6,11 +6,10 @@ public class ManagerPlayerAction {
 
     private Character mainHero;
     private Character.CharacterLabel mainHeroLabel;
-    private boolean fightAnimationIsRun = false;
 
     private boolean mainHeroAct()
     {
-        return mainHero.isMoving() || mainHero.isFighting() || mainHero.isJumping();
+        return mainHero.isMoving() || mainHero.isFighting() || mainHero.isJumping() || mainHero.isDying();
     }
 
     public void setMainHero(Character mainHero) {
@@ -75,16 +74,17 @@ public class ManagerPlayerAction {
     {
         Thread managerFightThread = new Thread(() ->
         {
-            fightAnimationIsRun = true;
-            Thread fightThread = mainHero.fight();
-            ThreadsWaiting.wait(fightThread);
-            fightAnimationIsRun = false;
+            if(!mainHeroLabel.isFightAnimationIsOn()) {
 
-            if (!mainHeroAct())
-                mainHero.stay();
-            else if(mainHero.isMoving())
-                //if it was jumping with moving and moving is active, character should continue moving
-                mainHero.move();
+                Thread fightThread = mainHero.fight();
+                ThreadsWaiting.wait(fightThread);
+
+                if (!mainHeroAct())
+                    mainHero.stay();
+                else if (mainHero.isMoving())
+                    //if it was jumping with moving and moving is active, character should continue moving
+                    mainHero.move();
+            }
         });
 
         managerFightThread.start();

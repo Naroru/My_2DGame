@@ -91,15 +91,19 @@ public class GameObjectManager {
     private static void moveObjectUpAndDown(GameObject gameObject) {
 
         Thread thread = new Thread(() -> {
-            while (true) {
+
+            int iconWidth = gameObject.getIcon().getIconWidth();
+            int iconHeight = gameObject.getIcon().getIconHeight();
+
+            while (gameObject.isVisible()) {
 
                 for (int i = 0; i < 15; i++) {
-                    gameObject.setBounds(gameObject.getX(), gameObject.getY() - 1, gameObject.getIcon().getIconWidth(), gameObject.getIcon().getIconHeight());
+                    gameObject.setBounds(gameObject.getX(), gameObject.getY() - 1,iconWidth, iconHeight);
                     ThreadsWaiting.wait(80);
                 }
 
                 for (int i = 0; i < 15; i++) {
-                    gameObject.setBounds(gameObject.getX(), gameObject.getY() + 1, gameObject.getIcon().getIconWidth(), gameObject.getIcon().getIconHeight());
+                    gameObject.setBounds(gameObject.getX(), gameObject.getY() + 1, iconWidth,iconHeight);
                     ThreadsWaiting.wait(80);
                 }
             }

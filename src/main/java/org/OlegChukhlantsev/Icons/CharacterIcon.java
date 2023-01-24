@@ -14,6 +14,7 @@ public class CharacterIcon extends ImageIcon {
         this.rightBorderBodyOffset = rightBorderBodyOffset;
     }
 
+
     public int getLeftBorderBodyOffset() {
         return leftBorderBodyOffset;
     }

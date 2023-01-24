@@ -1,5 +1,6 @@
 package org.OlegChukhlantsev.Characters;
 
+import org.OlegChukhlantsev.Characters.Sounds.Sound;
 import org.OlegChukhlantsev.CommonManagers.PropertiesManager;
 import org.OlegChukhlantsev.Enums.CharacterOrientations;
 import org.OlegChukhlantsev.Frames.Game;
@@ -20,15 +21,19 @@ public class InteractionManager {
 
         if (characterAchieveEnemyBody(character, enemy)) {
 
-            String propNameDamage = character.getCharacterLabel().getCharacterIconType() + ".damage";
+            Sound.replayHitSound(character.getType());
 
+            String propNameDamage = character.isMainHero() ? "mainHero.damage" : "nps.damage";
             int damage = Integer.parseInt(PropertiesManager.getNotNullableProperty(propNameDamage));
+
             enemy.setCurrent_health(enemy.getCurrent_health() - damage);
 
             game.updateLifeBars();
             game.checkFinishGame();
 
         }
+        else
+            Sound.replayMissSound(character.getType());
     }
 
 
@@ -56,7 +61,7 @@ public class InteractionManager {
                 && mainHeroBodyLeftBorder >= npsBodyRightBorder - maxIn
                 && mainHeroLabel.getCharacterOrientation() == CharacterOrientations.LEFT;
 
-        return !mainHeroInJump(mainHeroLabel, npsLabel) && (mainHeroCollideToTheLeft || mainHeroCollideToTheRight) ;
+        return !mainHeroTooHighJump() && (mainHeroCollideToTheLeft || mainHeroCollideToTheRight) ;
 
     }
 
@@ -79,7 +84,7 @@ public class InteractionManager {
             characterAchieveEnemyBody = characterBodyRightBorder > enemyBodyRightBorder
                     && characterBodyLeftBorder - character.getAttackRange() < enemyBodyRightBorder;
 
-        return  characterAchieveEnemyBody;
+        return  characterAchieveEnemyBody && !mainHeroTooHighJump();
     }
 
     private static  Character getEnemyOfCharacter(Character character)
@@ -101,31 +106,41 @@ public class InteractionManager {
 
         if (mainHero.isMainHero()) {
 
-            Character.CharacterLabel mainHeroLabel = mainHero.getCharacterLabel();
-
          for (GameObject gameObject : game.getGameObjects()) {
 
-             int xLeftBorder = gameObject.getX();
-             int xRightBorder = xLeftBorder + gameObject.getWidth();
-             int xMiddle = xLeftBorder + gameObject.getWidth() / 2;
-
-             if (mainHeroLabel.getLeftBodyBorder() <= xLeftBorder && mainHeroLabel.getRightBodyBorder() >= xMiddle
-                     || mainHeroLabel.getRightBodyBorder() >= xRightBorder && mainHeroLabel.getLeftBodyBorder() <= xMiddle) {
+             if (mainHeroInteractWithGameObject(mainHero, gameObject)
+                     && gameObject.needToUse(mainHero)) {
 
                  gameObject.effectOnHero(mainHero);
-
                  game.updateLifeBars();
-
                  GameObjectManager.recreateObject(gameObject);
-
              }
-        };
+         }
 
         }
-    }
 
-    private static  boolean mainHeroInJump (JLabel mainHeroLabel, JLabel npsLabel)
+        }
+
+
+    private static boolean mainHeroInteractWithGameObject(Character mainHero, GameObject gameObject)
     {
+
+        Character.CharacterLabel mainHeroLabel = mainHero.getCharacterLabel();
+
+        int xLeftBorder = gameObject.getX();
+        int xRightBorder = xLeftBorder + gameObject.getWidth();
+        int xMiddle = xLeftBorder + gameObject.getWidth() / 2;
+
+        return  mainHeroLabel.getLeftBodyBorder() <= xLeftBorder && mainHeroLabel.getRightBodyBorder() >= xMiddle
+                || mainHeroLabel.getRightBodyBorder() >= xRightBorder && mainHeroLabel.getLeftBodyBorder() <= xMiddle;
+
+        }
+
+    private static  boolean mainHeroTooHighJump ()
+    {
+
+        JLabel mainHeroLabel = game.getMainHero().getCharacterLabel();
+        JLabel npsLabel = game.getNPS().getCharacterLabel();
 
         int mainHeroYBottom  = mainHeroLabel.getY() + mainHeroLabel.getHeight() ;
         int npsYMiddle = npsLabel.getY() + npsLabel.getHeight()/2;

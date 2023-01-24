@@ -5,7 +5,8 @@ public enum ActionTypes {
     MOVE,
     FIGHT,
     JUMP,
-    STAY;
+    STAY,
+    DIE;
 
     @Override
     public String toString() {

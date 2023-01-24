@@ -4,8 +4,11 @@ package org.OlegChukhlantsev.Frames;
 import org.OlegChukhlantsev.Characters.AI;
 import org.OlegChukhlantsev.Characters.Character;
 import org.OlegChukhlantsev.Characters.InteractionManager;
+import org.OlegChukhlantsev.Characters.Sounds.Sound;
 import org.OlegChukhlantsev.CommonManagers.FrameManagers;
-import org.OlegChukhlantsev.CommonManagers.IconManager;
+import org.OlegChukhlantsev.CommonManagers.PropertiesManager;
+import org.OlegChukhlantsev.CommonManagers.ThreadsWaiting;
+import org.OlegChukhlantsev.Icons.IconManager;
 import org.OlegChukhlantsev.Characters.ManagerPlayerAction;
 import org.OlegChukhlantsev.GameObjects.GameObject;
 import org.OlegChukhlantsev.GameObjects.GameObjectManager;
@@ -28,11 +31,13 @@ public class Game extends JFrame implements KeyListener {
     private JLabel environment;
     private JLabel mainHeroLifeBar;
     private JLabel npsLifeBar;
+    private Sound battleSound;
 
     private List <GameObject> gameObjects;
 
     private boolean isFinish;
 
+    private final float STANDART_MUSIC_VOLUME = (float) 0.8;
     public static final int FLOOR_Y_COORDINATE = 365;
     public static final int WIDTH = 1076;
     public static final int HEIGHT = 540;
@@ -55,25 +60,53 @@ public class Game extends JFrame implements KeyListener {
 
     }
 
+    private JLabel showLabelInfo()
+    {
+       String info = "W - прыжок, A - влево, D - вправо, Пробел - атака";
+
+        JLabel infoLabel = new JLabel();
+        infoLabel.setFont(new Font(null,  Font.PLAIN, 25));
+        infoLabel.setForeground(Color.WHITE);
+        infoLabel.setBounds(250, 50, 600, 200);
+        infoLabel.setText(info);
+        environment.add(infoLabel);
+        return infoLabel;
+    }
+
     public void startGame()
     {
+
+        environment = createEnvironment();
 
         InteractionManager.game = this;
         GameObjectManager.game = this;
         AI.game = this;
 
-        environment = createEnvironment();
+
         mainHero = Character.createMainHero(this);
         NPS = Character.createNPS(this);
 
+        addHealthPortion();
         drawLifeBars();
+        JLabel info = showLabelInfo();
+
+        this.add(environment,BorderLayout.CENTER);
+
+        Sound startSound = new Sound(PropertiesManager.getNotNullableProperty("startMusic"), STANDART_MUSIC_VOLUME);
+        battleSound = new Sound(PropertiesManager.getNotNullableProperty("battleMusic"),STANDART_MUSIC_VOLUME);
+
+
+        startSound.play();
+        startSound.join();
+        startSound.close();
+
+        info.setText("");
 
         managerPlayerAction.setMainHero(mainHero);
         AI.npsAIStart();
 
-        addHealthPortion();
+        battleSound.play();
 
-        this.add(environment,BorderLayout.CENTER);
     }
 
     private static JLabel createEnvironment() {
@@ -106,9 +139,34 @@ public class Game extends JFrame implements KeyListener {
 
     public void checkFinishGame()
     {
-        isFinish = mainHero.getCurrent_health()==0 || NPS.getCurrent_health()==0;
+        if( !isFinish && (mainHero.getCurrent_health()<=0 || NPS.getCurrent_health() <= 0)) {
 
+            isFinish = true;
+            battleSound.stop();
+            battleSound.close();
+
+            JLabel gameFinish = new JLabel();
+            gameFinish.setFont(new Font(null,  Font.PLAIN, 55));
+            gameFinish.setForeground(Color.WHITE);
+            gameFinish.setBounds(450, 150, 200, 50);
+            environment.add(gameFinish);
+
+
+            if (mainHero.getCurrent_health() <= 0) {
+                mainHero.die();
+                NPS.victory();
+                gameFinish.setText(" Defeat!");
+                Sound.playSound(PropertiesManager.getNotNullableProperty("defeatMusic"));
+
+            } else {
+                NPS.die();
+                mainHero.victory();
+                gameFinish.setText("Victory!");
+                Sound.playSound(PropertiesManager.getNotNullableProperty("victoryMusic"));
+            }
+        }
     }
+
     private void setLifeBarProps(JLabel lifebar, Color color, int x, int y)
     {
         lifebar.setOpaque(true);

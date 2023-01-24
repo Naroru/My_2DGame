@@ -15,7 +15,7 @@ public class FrameManagers {
         frame.setLayout(null);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setResizable(false);
-        frame.setLocationRelativeTo(null);
+        frame.setLocationRelativeTo(frame);
         frame.setVisible(true);
     }
 

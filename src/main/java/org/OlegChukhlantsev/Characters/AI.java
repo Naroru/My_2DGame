@@ -1,10 +1,8 @@
 package org.OlegChukhlantsev.Characters;
 
-import org.OlegChukhlantsev.CommonManagers.IconManager;
 import org.OlegChukhlantsev.Enums.CharacterOrientations;
 import org.OlegChukhlantsev.CommonManagers.ThreadsWaiting;
 import org.OlegChukhlantsev.Frames.Game;
-import org.OlegChukhlantsev.Icons.CharacterIcon;
 
 public class AI {
 
@@ -22,7 +20,7 @@ public class AI {
             Thread AI = new Thread(() -> {
                 while (!game.isFinish()) {
 
-                    ThreadsWaiting.wait(200);
+                    ThreadsWaiting.wait(30);
 
                     if (needMoving) {
                         Thread moveThread = nps.move();
@@ -46,7 +44,7 @@ public class AI {
                 Character.CharacterLabel npsLabel = nps.getCharacterLabel();
                 Character.CharacterLabel mainHeroLabel = mainHero.getCharacterLabel();
 
-                while (true) {
+                while (!game.isFinish()) {
 
                     int nps_xCoordinate =  npsLabel.getX();
                     int mainHero_xCoordinate = mainHeroLabel.getX();
@@ -65,6 +63,7 @@ public class AI {
                             needMoving = true;
                             nps.setFighting(false);
                             npsLabel.setCharacterOrientations(CharacterOrientations.LEFT);
+
                         }
 
                     } else if (mainHero_xCoordinate > nps_xCoordinate) {
@@ -80,6 +79,8 @@ public class AI {
                             needMoving = true;
                             nps.setFighting(false);
                             npsLabel.setCharacterOrientations(CharacterOrientations.RIGHT);
+
+
                         }
 
                     }

@@ -1,10 +1,11 @@
 package org.OlegChukhlantsev.Characters;
 
+import org.OlegChukhlantsev.Characters.Sounds.Sound;
 import org.OlegChukhlantsev.Enums.ActionTypes;
 import org.OlegChukhlantsev.Enums.CharacterOrientations;
-import org.OlegChukhlantsev.Enums.IconTypes;
+import org.OlegChukhlantsev.Enums.CharacterTypes;
 import org.OlegChukhlantsev.Frames.Game;
-import org.OlegChukhlantsev.CommonManagers.IconManager;
+import org.OlegChukhlantsev.Icons.IconManager;
 import org.OlegChukhlantsev.CommonManagers.PropertiesManager;
 import org.OlegChukhlantsev.CommonManagers.ThreadsWaiting;
 import org.OlegChukhlantsev.Icons.CharacterIcon;
@@ -17,11 +18,13 @@ public class Character {
     private static final int Y_SPEED_MOVEMENT = 0;
 
     private CharacterLabel characterLabel;
+    private CharacterTypes type;
     private int xSpeedMovenment;
 
     private volatile boolean isMoving = false;
     private volatile boolean isJumping = false;
-    private volatile boolean isFighting = false;
+    private  volatile boolean isFighting = false;
+    private  volatile boolean isDying= false;
 
     private volatile int current_health;
     private int initial_health;
@@ -42,8 +45,8 @@ public class Character {
         nps.xSpeedMovenment = Integer.parseInt(PropertiesManager.getNotNullableProperty("nps.xSpeedMovement"));
         nps.characterLabel = nps.new CharacterLabel();
 
-        // Для рандомных нпс надо присваивать различные типы иконок, но пока по умолчанию ставим
-        nps.characterLabel.characterIconType = IconTypes.warrior;
+        // Для рандомных нпс надо присваивать различные типы, но пока оставим так
+        nps.type = CharacterTypes.warrior;
         nps.characterLabel.setCharacterOrientations(CharacterOrientations.LEFT);
 
         return createCharacterContinue(yPos, xPos, environment, nps);
@@ -53,7 +56,7 @@ public class Character {
 
         character.current_health = character.initial_health;
         character.characterLabel.updateCharacterLabelIcon(ActionTypes.STAY);
-        character.attackRange =  Integer.parseInt(PropertiesManager.getNotNullableProperty(character.characterLabel.characterIconType+".attackRange"));
+        character.attackRange =  Integer.parseInt(PropertiesManager.getNotNullableProperty(character.type+".attackRange"));
 
         Icon characterIcon =  character.characterLabel.getIcon();
         character.characterLabel.setBounds(xPos, yPos - characterIcon.getIconHeight(),characterIcon.getIconWidth(),characterIcon.getIconHeight());
@@ -72,12 +75,12 @@ public class Character {
 
         Character mainHero = new Character();
         mainHero.mainHero = true;
+        mainHero.type = CharacterTypes.mainHero;
 
         mainHero.initial_health = Integer.parseInt(PropertiesManager.getNotNullableProperty("mainHero.health"));
         mainHero.xSpeedMovenment = Integer.parseInt(PropertiesManager.getNotNullableProperty("mainHero.xSpeedMovement"));
 
         mainHero.characterLabel = mainHero.new CharacterLabel();
-        mainHero.characterLabel.characterIconType = IconTypes.mainHero;
         mainHero.characterLabel.setCharacterOrientations(CharacterOrientations.RIGHT);
 
 
@@ -91,23 +94,36 @@ public class Character {
             if (!isJumping && !isFighting)
                 characterLabel.updateCharacterLabelIcon(ActionTypes.MOVE);
 
+
+            Sound move_sound = new Sound("/music/" + type + "/walking.wav");
+            // упрощаем в рамках пет проекта. Так громкость вообще можно хранить в .properties
+            // или в БД в таблице настроек
+            move_sound.setVolume(mainHero ? 1 : (float) 0.9);
+
             if (!isMoving) {
 
                 isMoving = true;
 
                 while (isMoving) {
 
+                    if(isFighting || isJumping)
+                        move_sound.stop();
+                    else if (!move_sound.isPlaying()) {
+                        move_sound.play();
+                    }
+
                     int xSpeed = xSpeedMovenment;
 
-                    if(characterLabel.isFightAnimationIsOn())
-                         xSpeed  = 0;
+                    if (characterLabel.isFightAnimationIsOn())
+                        xSpeed = 0;
 
                     else if (isJumping)
-                         xSpeed = xSpeedMovenment/2;
+                        xSpeed = xSpeedMovenment / 2;
 
                     characterLabel.moveCharacterLabelByXYCoordinates(xSpeed, Y_SPEED_MOVEMENT);
                 }
-
+                move_sound.stop();
+                move_sound.close();
             }
         });
 
@@ -151,36 +167,57 @@ public class Character {
         return jumpThread;
     }
 
+    public void  die()
+    {
+
+
+        Sound.replayDieSound(type);
+
+        isFighting = false;
+        isJumping = false;
+        isMoving = false;
+        isDying = true;
+
+        characterLabel.updateCharacterLabelIcon(ActionTypes.DIE);
+        int animationTime = Integer.parseInt(PropertiesManager.getNotNullableProperty(type + ".dieAnimation"));
+        ThreadsWaiting.wait(animationTime);
+
+        characterLabel.setIcon(IconManager.getStaticDieIcon(type, characterLabel.characterOrientation));
+
+
+
+    }
+
     public Thread fight() {
+        Thread fightThread = new Thread();
 
-        Thread fightThread = new Thread(() -> {
+        if (!isJumping && !isFighting) {
+              fightThread = new Thread(() -> {
 
-            if (!isJumping && !isFighting) {
+                    isFighting = true;
 
-                isFighting = true;
+                    characterLabel.updateCharacterLabelIcon(ActionTypes.FIGHT);
 
-                characterLabel.updateCharacterLabelIcon(ActionTypes.FIGHT);
+                    while (isFighting) {
 
-                while (isFighting) {
+                        for (int i = 0; i < 3; i++) {
+                            // animation is run
+                            characterLabel.setFightAnimationIsOn(true);
 
-                    for (int i = 0; i < 3; i++) {
-                        // animation is run
-                        characterLabel.setFightAnimationIsOn(true);
-
-                        ThreadsWaiting.wait(200); //first part animation of a hit
-                        InteractionManager.characterMakeAHit(this);
-                        ThreadsWaiting.wait(200); //second part animation of a hit
-                        characterLabel.setFightAnimationIsOn(false);
+                            ThreadsWaiting.wait(200); //first part animation of a hit
+                            InteractionManager.characterMakeAHit(this);
+                            ThreadsWaiting.wait(200); //second part animation of a hit
+                            characterLabel.setFightAnimationIsOn(false);
 
 
-                        if (!isFighting)
-                            break;
+                            if (!isFighting)
+                                break;
 
+                        }
                     }
-                }
-            }
-        });
 
+            });
+        }
         fightThread.start();
 
         return fightThread;
@@ -192,7 +229,13 @@ public class Character {
             characterLabel.updateCharacterLabelIcon(ActionTypes.STAY);
     }
 
-
+public void victory()
+{
+    isMoving = false;
+    isJumping = false;
+    isFighting = false;
+    stay();
+}
     public void setMoving(boolean moving) {
         isMoving = moving;
     }
@@ -233,14 +276,22 @@ public class Character {
         return mainHero;
     }
 
+    public CharacterTypes getType() {
+        return type;
+    }
+
+    public boolean isDying() {
+        return isDying;
+    }
+
     //--------------------------------------------------------------------------------
     public class CharacterLabel extends JLabel
     {
         private volatile CharacterOrientations  characterOrientation = CharacterOrientations.RIGHT;
         private int characterBodyOffset;
         private boolean fightAnimationIsOn;
-        private IconTypes characterIconType;
-        private CharacterIcon characterIcon;
+
+
       //  private URL characterIconURL;
 
         public CharacterLabel() {
@@ -256,11 +307,9 @@ public class Character {
             this.fightAnimationIsOn = fightAnimationIsOn;
         }
 
-
-
         private void updateCharacterLabelIcon(ActionTypes action) {
 
-            CharacterIcon characterIcon = IconManager.getActionIcon(characterIconType, characterOrientation,action);
+            CharacterIcon characterIcon = IconManager.getActionIcon(type, characterOrientation,action);
             setIconPosition(characterIcon);
             setIcon(characterIcon);
 
@@ -320,8 +369,6 @@ public class Character {
             this.characterOrientation = characterOrientations;
         }
 
-        public IconTypes getCharacterIconType() {
-            return characterIconType;
-        }
+
     }
 }
