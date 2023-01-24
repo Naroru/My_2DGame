@@ -36,6 +36,7 @@ public class Game extends JFrame implements KeyListener {
     private List <GameObject> gameObjects;
 
     private boolean isFinish;
+    private boolean isStarted;
 
     private final float STANDART_MUSIC_VOLUME = (float) 0.8;
     public static final int FLOOR_Y_COORDINATE = 365;
@@ -105,6 +106,7 @@ public class Game extends JFrame implements KeyListener {
         managerPlayerAction.setMainHero(mainHero);
         AI.npsAIStart();
 
+        isStarted = true;
         battleSound.play();
 
     }
@@ -205,7 +207,7 @@ public class Game extends JFrame implements KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
 
-        if (!isFinish) {
+        if (isStarted && !isFinish) {
             if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A)
                 managerPlayerAction.moveMainHeroLeft();
             else if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D)
@@ -218,13 +220,15 @@ public class Game extends JFrame implements KeyListener {
     }
     @Override
     public void keyReleased(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_LEFT  || e.getKeyCode() == KeyEvent.VK_A)
-            managerPlayerAction.stopMainHeroMovingLeft();
-        else if  (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D)
-            managerPlayerAction.stopMainHeroMovingRight();
-        else if (e.getKeyCode() == KeyEvent.VK_SPACE)
-            managerPlayerAction.stopMainHeroFight();
 
+        if (isStarted && !isFinish)  {
+            if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A)
+                managerPlayerAction.stopMainHeroMovingLeft();
+            else if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D)
+                managerPlayerAction.stopMainHeroMovingRight();
+            else if (e.getKeyCode() == KeyEvent.VK_SPACE)
+                managerPlayerAction.stopMainHeroFight();
+        }
     }
 
     public JLabel getEnvironment() {
