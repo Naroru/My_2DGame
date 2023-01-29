@@ -4,16 +4,15 @@ package org.OlegChukhlantsev.Frames;
 import org.OlegChukhlantsev.Characters.AI;
 import org.OlegChukhlantsev.Characters.Character;
 import org.OlegChukhlantsev.Characters.InteractionManager;
-import org.OlegChukhlantsev.Characters.Sounds.Sound;
+import org.OlegChukhlantsev.Sounds.Sound;
 import org.OlegChukhlantsev.CommonManagers.FrameManagers;
 import org.OlegChukhlantsev.CommonManagers.PropertiesManager;
-import org.OlegChukhlantsev.CommonManagers.ThreadsWaiting;
 import org.OlegChukhlantsev.Icons.IconManager;
 import org.OlegChukhlantsev.Characters.ManagerPlayerAction;
 import org.OlegChukhlantsev.GameObjects.GameObject;
 import org.OlegChukhlantsev.GameObjects.GameObjectManager;
 import org.OlegChukhlantsev.GameObjects.Portion;
-import org.springframework.stereotype.Component;
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,7 +21,7 @@ import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+
 public class Game extends JFrame implements KeyListener {
 
     private Character  mainHero;

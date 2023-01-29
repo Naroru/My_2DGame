@@ -1,6 +1,6 @@
 package org.OlegChukhlantsev.Characters;
 
-import org.OlegChukhlantsev.Characters.Sounds.Sound;
+import org.OlegChukhlantsev.Sounds.Sound;
 import org.OlegChukhlantsev.Enums.ActionTypes;
 import org.OlegChukhlantsev.Enums.CharacterOrientations;
 import org.OlegChukhlantsev.Enums.CharacterTypes;

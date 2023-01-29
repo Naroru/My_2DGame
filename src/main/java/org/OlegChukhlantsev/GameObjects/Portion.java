@@ -1,9 +1,8 @@
 package org.OlegChukhlantsev.GameObjects;
 
 import org.OlegChukhlantsev.Characters.Character;
-import org.OlegChukhlantsev.Characters.Sounds.Sound;
+import org.OlegChukhlantsev.Sounds.Sound;
 import org.OlegChukhlantsev.CommonManagers.PropertiesManager;
-import org.OlegChukhlantsev.Frames.Game;
 
 import javax.swing.*;
 

@@ -1,15 +1,11 @@
-package org.OlegChukhlantsev.Characters.Sounds;
+package org.OlegChukhlantsev.Sounds;
 
-import org.OlegChukhlantsev.CommonManagers.PropertiesManager;
-import org.OlegChukhlantsev.CommonManagers.ThreadsWaiting;
 import org.OlegChukhlantsev.Enums.CharacterTypes;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Objects;
-
-import org.OlegChukhlantsev.Characters.Character;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
