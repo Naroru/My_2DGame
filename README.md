@@ -1,39 +1,16 @@
-# PetProject_Game
+# Arena game
 Noncommercial pet project game
 
-<p align="center">
-      <img src="https://i.postimg.cc/L8B3SMhJ/1.png" >
-</p>
-
-<p align="center">
-      <https://i.postimg.cc/jjM6WQHK/2.png">
-</p>
-
-<p align="center">
-      <img src="https://i.postimg.cc/1t4GDnBF/3.png">
-</p>
-
-<p align="center">
-   <img src="" alt="Unity Version">
-   <img src="" alt="Game Version">
-   <img src="" alt="License">
-</p>
-
 ## About
+Small game of arena type with 2 characters
+You can fight, move and jump by your character
 
-About Text Here
+Game was created in Java with Swing GUI as a practise of coding
+There is game music
 
-## Documentation
-
-Documentation Here
-
-## Distribute
-
-- [Service Name](Page Link)
+<img src="https://ltdfoto.ru/images/2023/03/03/1.png" alt="1.png" border="0" />
+<img src="https://ltdfoto.ru/images/2023/03/03/201423277a598dcfa.png" alt="201423277a598dcfa.png" border="0" />
+<img src="https://ltdfoto.ru/images/2023/03/03/31481384e8d25060e.png" alt="31481384e8d25060e.png" border="0" />
 
 
-## Developers
-
-- [Delevoper Name](GitHub Profile Link)
-
-## License
+ 
